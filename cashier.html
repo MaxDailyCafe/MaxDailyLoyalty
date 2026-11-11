@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MAX DAILY — Cashier</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loyalty.css"/>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><h1>MAX DAILY</h1><p>CASHIER • STAMP STATION</p></div>
+
+  <div id="pinView" class="panel">
+    <label for="pin">PIN</label>
+    <input id="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"/>
+    <button id="pinBtn" class="btn">UNLOCK</button>
+    <div id="pinErr" class="err"></div>
+  </div>
+
+  <div id="mainView" class="hidden">
+    <div class="panel">
+      <button id="scanBtn" class="btn gold" style="margin-top:0">📷 SCAN CUSTOMER QR</button>
+      <div id="reader" class="hidden"></div>
+      <label for="lookup">OR PHONE NUMBER</label>
+      <div class="row">
+        <input id="lookup" type="tel" inputmode="tel" placeholder="01XXXXXXXXX" dir="ltr"/>
+        <button id="lookupBtn" class="btn" style="width:auto;padding:0 20px">FIND</button>
+      </div>
+      <div id="err" class="err"></div>
+    </div>
+
+    <div id="custView" class="loyalty hidden">
+      <div class="top">
+        <div><div class="lb">CUSTOMER</div><div class="val" id="cName">—</div><div class="hint" id="cPhone" style="text-align:left"></div></div>
+        <div style="text-align:right"><div class="lb">STAMPS</div><div class="val" id="cCount">0/5</div></div>
+      </div>
+      <div class="stamps" id="stamps"></div>
+      <div class="status" id="status"></div>
+      <button id="add2" class="btn gold">+2 عرض أول طلب (FIRST ORDER)</button>
+      <button id="add1" class="btn gold">+1 إضافة ختم (ADD STAMP)</button>
+      <button id="redeem" class="btn ghost" style="color:var(--cream);border-color:var(--gold)">🎁 صرف المشروب المجاني (REDEEM)</button>
+    </div>
+  </div>
+  <p class="small" id="modeNote"></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script src="config.js"></script>
+<script src="loyalty.js"></script>
+<script>
+const $ = id => document.getElementById(id), S = MDStore, C = MD_CONFIG;
+const CUP = '<svg viewBox="0 0 24 24"><path d="M4 8h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5V8zm13 1h1.5a2.5 2.5 0 0 1 0 5H17v-1.6h1.5a.9.9 0 0 0 0-1.8H17V9zM6 2h2v3H6V2zm4 0h2v3h-2V2z"/></svg>';
+let cust = null, scanner = null;
+$('modeNote').textContent = S.mode==='demo' ? 'DEMO MODE — data stored in this browser only' : '';
+
+function unlock(){ $('pinView').classList.add('hidden'); $('mainView').classList.remove('hidden'); sessionStorage.setItem('md_unlocked','1'); }
+$('pinBtn').onclick = () => $('pin').value===C.CASHIER_PIN ? unlock() : ($('pinErr').textContent='Wrong PIN');
+$('pin').onkeydown = e => e.key==='Enter' && $('pinBtn').click();
+if (sessionStorage.getItem('md_unlocked')) unlock();
+
+function show(){
+  $('custView').classList.remove('hidden'); $('err').textContent='';
+  $('cName').textContent=cust.name; $('cPhone').textContent=cust.phone;
+  $('cCount').textContent=`${cust.stamps}/${S.TOTAL}`;
+  $('stamps').innerHTML=Array.from({length:S.TOTAL},(_,i)=>`<div class="stamp ${i<cust.stamps?'on':''}">${CUP}</div>`).join('');
+  const full=cust.stamps>=S.TOTAL;
+  $('status').className='status'+(full?' reward':'');
+  $('status').textContent=full?'🎉 FREE DRINK AVAILABLE':(cust.first_order?'First visit — eligible for +2':'');
+  $('add2').classList.toggle('hidden', !(cust.first_order && cust.stamps===0));
+  $('add1').disabled = full; $('redeem').disabled = !full;
+  $('add1').classList.toggle('hidden', cust.first_order && cust.stamps===0);
+}
+async function load(id){ try{ cust=await S.get(id); if(!cust) throw new Error('Customer not found'); show(); }catch(e){ $('err').textContent=e.message; } }
+async function act(a){ try{ cust=await S.apply(cust.id,a); S.wallet('sync',cust.id).catch(()=>{}); show(); if(navigator.vibrate) navigator.vibrate(60);}catch(e){ $('err').textContent=e.message; } }
+$('add2').onclick=()=>act('ADD_2_FIRST'); $('add1').onclick=()=>act('ADD_1'); $('redeem').onclick=()=>{ if(confirm('Redeem free drink & reset card?')) act('REDEEM'); };
+$('lookupBtn').onclick=async()=>{ try{ cust=await S.findByPhone($('lookup').value); if(!cust) throw new Error('No customer with this number'); show(); }catch(e){ $('err').textContent=e.message; } };
+
+$('scanBtn').onclick=async()=>{
+  const r=$('reader');
+  if(scanner){ await scanner.stop().catch(()=>{}); scanner=null; r.classList.add('hidden'); $('scanBtn').textContent='📷 SCAN CUSTOMER QR'; return; }
+  r.classList.remove('hidden'); $('scanBtn').textContent='✖ STOP CAMERA';
+  scanner=new Html5Qrcode('reader');
+  scanner.start({facingMode:'environment'},{fps:10,qrbox:220},async txt=>{
+    await scanner.stop().catch(()=>{}); scanner=null; r.classList.add('hidden'); $('scanBtn').textContent='📷 SCAN CUSTOMER QR';
+    load(txt.trim());
+  }).catch(e=>{ $('err').textContent='Camera error: '+e; scanner=null; r.classList.add('hidden'); });
+};
+</script>
+</body>
+</html>

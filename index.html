@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="theme-color" content="#1A120D"/>
+<title>MAX DAILY — Loyalty Card</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="loyalty.css"/>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+  <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#F0D3A6"/><stop offset=".45" stop-color="#D9AE7B"/><stop offset="1" stop-color="#B5854B"/>
+  </linearGradient>
+</defs></svg>
+<div class="wrap">
+  <div class="brand"><h1>MAX DAILY</h1><p>SPECIALTY COFFEE &amp; BAKERY</p></div>
+
+  <!-- Registration -->
+  <div id="regView" class="panel hidden" dir="rtl" style="background:linear-gradient(165deg,#2b1d14,#1A120D);color:#F4E9DC;border-color:rgba(217,174,123,.55)">
+    <div class="emblem" style="margin-bottom:8px"><img src="assets/logo_vertical.svg" alt="MAX DAILY" style="height:96px"/></div>
+    <h2 style="font-weight:800;text-align:center;color:#D9AE7B">نادي قهوتنا ☕</h2>
+    <p class="small" style="text-align:center;color:rgba(244,233,220,.75)">اجمع 5 أختام واحصل على مشروبك السادس مجاناً!<br>هدية أول طلب: ختمان بدلاً من ختم واحد 🎉</p>
+    <label for="name">الاسم</label>
+    <input id="name" autocomplete="name" placeholder="اسمك"/>
+    <label for="phone">رقم الموبايل</label>
+    <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX" dir="ltr"/>
+    <button id="regBtn" class="btn gold">احصل على كارت الولاء</button>
+    <div id="regErr" class="err"></div>
+  </div>
+
+  <!-- Card -->
+  <div id="cardView" class="hidden">
+    <div class="loyalty">
+      <div class="emblem"><img src="assets/logo_vertical.svg" alt="MAX DAILY"/></div>
+      <div class="gold-rule"><span>LOYALTY CLUB</span></div>
+      <div class="member"><div class="lb">MEMBER</div><div class="val" id="cName">—</div></div>
+      <div class="stamps" id="stamps"></div>
+      <div class="status" id="status"></div>
+      <div class="qr" id="qr"></div>
+      <div class="hint">Show this QR to the cashier • اعرض الكود للكاشير</div>
+    </div>
+    <div class="panel" style="margin-top:16px" dir="rtl">
+      <div class="small" style="margin:0;text-align:right">
+        1. ختمان عند أول طلب.<br>2. ختم واحد لكل زيارة تالية.<br>3. عند اكتمال 5 أختام: أي مشروب مجاناً في الزيارة السادسة.
+      </div>
+      <button id="appleBtn" class="btn wallet apple hidden"><span></span> Add to Apple Wallet</button>
+      <button id="googleBtn" class="btn wallet google hidden">G&nbsp; Add to Google Wallet</button>
+      <div id="walletMsg" class="small" style="margin-top:8px"></div>
+      <button id="refreshBtn" class="btn ghost">تحديث الأختام ↻</button>
+    </div>
+  </div>
+  <p class="small" id="modeNote"></p>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
+<script src="config.js"></script>
+<script src="loyalty.js"></script>
+<script>
+const $ = id => document.getElementById(id), S = MDStore, C = MD_CONFIG;
+// Cup carrying the MAX DAILY emblem. Inactive = faint outline; active = gold foil cup with espresso sleeve + logo.
+const cupSVG = on => `<svg viewBox="0 0 64 64" class="cup">
+  ${on ? `<path class="steam" d="M26 6c-3 3 3 5 0 8M32 4c-3 3 3 6 0 10M38 6c-3 3 3 5 0 8" fill="none" stroke="#D9AE7B" stroke-width="1.4" stroke-linecap="round"/>` : ''}
+  <rect x="11" y="15" width="42" height="6" rx="3" fill="${on?'url(#gGold)':'none'}" stroke="#D9AE7B" stroke-width="${on?0:1.4}" stroke-dasharray="${on?0:'3 3'}"/>
+  <path d="M14 21h36l-4.6 36.5a3 3 0 0 1-3 2.5H21.6a3 3 0 0 1-3-2.5z" fill="${on?'url(#gGold)':'none'}" stroke="#D9AE7B" stroke-width="${on?0:1.4}" stroke-dasharray="${on?0:'3 3'}"/>
+  ${on ? `<path d="M15.6 31h32.8l-1.5 12H17.1z" fill="#1A120D"/>
+  <rect x="15.6" y="31" width="32.8" height="12" fill="none" stroke="#F4E9DC" stroke-opacity=".0"/>
+  <text x="32" y="36.6" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-size="5.6" letter-spacing=".8" fill="#F4E9DC">MAX</text>
+  <text x="32" y="41.4" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="3.4" letter-spacing="1.1" fill="#D9AE7B">DAILY</text>
+  <path d="M20 24l-1 5" stroke="#fff" stroke-opacity=".35" stroke-width="1.6" stroke-linecap="round"/>` : ''}
+</svg>`;
+let cust = null, geoTimer = null;
+
+function renderQR(text){
+  const q = qrcode(0,'M'); q.addData(text); q.make();
+  $('qr').innerHTML = q.createImgTag(5,0);
+}
+function render(){
+  $('regView').classList.add('hidden'); $('cardView').classList.remove('hidden');
+  $('cName').textContent = cust.name;
+  $('stamps').innerHTML = Array.from({length:S.TOTAL},(_,i)=>`<div class="stamp ${i<cust.stamps?'on':''}" style="--d:${i*90}ms">${cupSVG(i<cust.stamps)}</div>`).join('');
+  const st = $('status'), full = cust.stamps >= S.TOTAL;
+  st.className = 'status' + (full?' reward':'');
+  st.textContent = full ? '🎉 المشروب السادس مجاناً متاح الآن!' :
+    (cust.first_order ? 'أول طلب = ختمان 🎁' : `باقي ${S.TOTAL-cust.stamps} للمشروب المجاني`);
+  renderQR(cust.id);
+  const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/i.test(ua), and = /Android/i.test(ua);
+  $('appleBtn').classList.toggle('hidden', and);   // iPhone -> Apple only, Android -> Google only, desktop -> both
+  $('googleBtn').classList.toggle('hidden', ios);
+}
+async function init(){
+  $('modeNote').textContent = S.mode==='demo' ? 'DEMO MODE — add Supabase keys in config.js to go live' : '';
+  const id = new URLSearchParams(location.search).get('id') || localStorage.getItem('md_my_id');
+  if (id){ try{ cust = await S.get(id); }catch(e){} }
+  if (cust){ localStorage.setItem('md_my_id',cust.id); render(); startGeo(); }
+  else $('regView').classList.remove('hidden');
+}
+$('regBtn').onclick = async () => {
+  const n=$('name').value.trim(), p=$('phone').value.trim();
+  if (n.length<2 || p.replace(/\D/g,'').length<10){ $('regErr').textContent='من فضلك أدخل الاسم ورقم موبايل صحيح'; return; }
+  try{ cust = await S.register(n,p); localStorage.setItem('md_my_id',cust.id); render(); startGeo();
+       autoWallet(); }
+  catch(e){ $('regErr').textContent = e.message; }
+};
+$('refreshBtn').onclick = async () => { cust = await S.get(cust.id) || cust; render(); };
+
+async function addToWallet(kind){
+  const msg = $('walletMsg'); msg.textContent = '…';
+  try{
+    const r = await S.wallet('create', cust.id);
+    const url = kind === 'apple' ? r.apple_url : r.google_url;
+    if (!url) throw new Error('Wallet link unavailable');
+    msg.textContent = ''; location.href = url;
+  }catch(e){ msg.textContent = S.mode==='demo' ? 'Wallet needs Supabase + wallet function (see README_WALLET.md)' : 'تعذّر إنشاء كارت المحفظة: ' + e.message; }
+}
+$('appleBtn').onclick = () => addToWallet('apple');
+// Right after sign-up, open the phone's native "Add to Wallet" sheet. The user still taps "Add" (OS requirement).
+function autoWallet(){
+  if (S.mode==='demo' || localStorage.getItem('md_wallet_prompted')===cust.id) return;
+  const ua = navigator.userAgent;
+  const kind = /iPhone|iPad|iPod/i.test(ua) ? 'apple' : /Android/i.test(ua) ? 'google' : null;
+  if (!kind) return;
+  localStorage.setItem('md_wallet_prompted', cust.id);
+  addToWallet(kind);
+}
+$('googleBtn').onclick = () => addToWallet('google');
+
+// Browser-side proximity alert (works while the page is open). True lock-screen alerts need the Wallet pass.
+const dist=(a,b,c,d)=>{const R=6371000,t=x=>x*Math.PI/180,dl=t(c-a),dn=t(d-b),h=Math.sin(dl/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h));};
+let geoStarted=false;
+function startGeo(){
+  if (geoStarted || !('geolocation' in navigator)) return;
+  geoStarted=true;
+  if ('Notification' in window && Notification.permission==='default') Notification.requestPermission().catch(()=>{});
+  navigator.geolocation.watchPosition(pos=>{
+    const d = dist(pos.coords.latitude,pos.coords.longitude,C.CAFE.lat,C.CAFE.lng);
+    if (d<=C.CAFE.radiusMeters && Date.now()-(+localStorage.getItem('md_geo_last')||0) > 6*3600e3){
+      localStorage.setItem('md_geo_last',Date.now());
+      if ('Notification' in window && Notification.permission==='granted') new Notification('MAX DAILY ☕',{body:C.GEO_MESSAGE});
+    }
+  },()=>{},{enableHighAccuracy:false,maximumAge:60000});
+}
+init();
+</script>
+</body>
+</html>
