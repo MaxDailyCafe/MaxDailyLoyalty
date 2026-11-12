@@ -11,6 +11,27 @@
   const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3 | 8)).toString(16); }));
   const normPhone = (p) => String(p).replace(/[^\d+]/g, "");
 
+  // Realtime Sync to Google Sheet (deduplicated by phone, auto-sent to email)
+  const syncSheet = (cust) => {
+    if (!C.GOOGLE_SHEET_URL || !cust || !cust.phone) return;
+    try {
+      fetch(C.GOOGLE_SHEET_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          name: cust.name,
+          phone: cust.phone,
+          stamps: cust.stamps,
+          visits: cust.visits,
+          redeemed: cust.redeemed
+        })
+      }).catch(e => console.log("Google Sheet sync error:", e));
+    } catch (e) {
+      console.log("Sync trigger failed:", e);
+    }
+  };
+
   const api = {
     mode: useSB ? "supabase" : "demo",
     TOTAL,
@@ -20,13 +41,19 @@
       if (useSB) {
         const { data, error } = await sb.rpc("md_register", { p_name: name, p_phone: phone });
         if (error) throw error;
+        syncSheet(data);
         return data;
       }
       const db = load();
       const existing = Object.values(db).find(c => c.phone === phone);
-      if (existing) return existing;
+      if (existing) {
+        syncSheet(existing);
+        return existing;
+      }
       const c = { id: uuid(), name, phone, stamps: 0, visits: 0, redeemed: 0, first_order: true, created_at: Date.now() };
-      db[c.id] = c; save(db); return c;
+      db[c.id] = c; save(db);
+      syncSheet(c);
+      return c;
     },
 
     async get(id) {
@@ -66,6 +93,7 @@
       if (useSB) {
         const { data, error } = await sb.rpc("md_apply", { p_id: id, p_action: action });
         if (error) throw error;
+        syncSheet(data);
         return data;
       }
       const db = load(); const c = db[id];
@@ -79,7 +107,9 @@
         c.stamps = Math.min(TOTAL, c.stamps + add);
         c.visits += 1; c.first_order = false;
       }
-      db[id] = c; save(db); return c;
+      db[id] = c; save(db);
+      syncSheet(c);
+      return c;
     }
   };
   window.MDStore = api;
