@@ -1,0 +1,285 @@
+{
+  "brand": {
+    "name": "MAX DAILY",
+    "subtitle": "SPECIALTY COFFEE & BAKERY",
+    "slogan": "A DAILY DOSE OF POSITIVITY",
+    "secondary_tagline": "DAILY DOSE // 100% ARABICA",
+    "established": "EST. 2026",
+    "currency": "EGP",
+    "open_status": "OPEN DAILY • 7:00 AM – 12:00 AM",
+    "qr_target_url": "https://maxdailycafe.github.io/MaxDialyDashboard/"
+  },
+  "google_review": {
+    "rating": "4.9",
+    "review_count": "280+",
+    "badge_text": "TOP RATED COFFEE HOUSE",
+    "cta_title": "LOVE YOUR DAILY DOSE?",
+    "cta_subtitle": "Tap to rate us 5 stars on Google Maps",
+    "review_url": "https://search.google.com/local/writereview?placeid=MAX_DAILY_PLACE_ID"
+  },
+  "location": {
+    "branch_name": "MAX DAILY — Flagship Roastery & Bakery",
+    "address_line_1": "Specialty Coffee District",
+    "address_line_2": "Main Boulevard, Cairo, Egypt",
+    "hours": "Daily: 07:00 AM – 12:00 AM",
+    "phone": "+20 100 000 0000",
+    "whatsapp": "https://wa.me/201000000000?text=Hello%20MAX%20DAILY!",
+    "google_maps_url": "https://maps.google.com/?q=MAX+DAILY+Specialty+Coffee+and+Bakery",
+    "coordinates_label": "30.0444° N, 31.2357° E"
+  },
+  "wifi": {
+    "network_name": "MAX_DAILY_GUEST",
+    "password": "POSITIVITY2026"
+  },
+  "websites": [
+    {
+      "id": "official_website",
+      "title": "OFFICIAL WEBSITE",
+      "subtitle": "Explore our story, specialty beans & locations",
+      "url": "https://maxdaily.coffee",
+      "badge": "WEB",
+      "featured": true,
+      "icon": "globe"
+    },
+    {
+      "id": "digital_menu",
+      "title": "FULL DIGITAL MENU",
+      "subtitle": "Espresso, Signatures, Manual Brew & Bakery",
+      "url": "#menu-drawer",
+      "badge": "MENU",
+      "featured": true,
+      "icon": "coffee"
+    },
+    {
+      "id": "whatsapp_order",
+      "title": "ORDER ON WHATSAPP",
+      "subtitle": "Quick pickup, takeaway & bean orders",
+      "url": "https://wa.me/201000000000?text=Hello%20MAX%20DAILY!%20I%20would%20like%20to%20order:",
+      "badge": "FAST PICKUP",
+      "featured": false,
+      "icon": "whatsapp"
+    }
+  ],
+  "social_media": [
+    {
+      "id": "instagram",
+      "platform": "Instagram",
+      "handle": "@maxdaily.coffee",
+      "subtitle": "Daily pours, fresh bakes & community moments",
+      "url": "https://instagram.com/maxdaily.coffee",
+      "icon": "instagram"
+    },
+    {
+      "id": "tiktok",
+      "platform": "TikTok",
+      "handle": "@maxdaily.coffee",
+      "subtitle": "Behind the bar & specialty coffee craft",
+      "url": "https://tiktok.com/@maxdaily.coffee",
+      "icon": "tiktok"
+    },
+    {
+      "id": "facebook",
+      "platform": "Facebook",
+      "handle": "/maxdaily.coffee",
+      "subtitle": "Events, announcements & branch updates",
+      "url": "https://facebook.com/maxdaily.coffee",
+      "icon": "facebook"
+    }
+  ],
+  "menu_categories": [
+    {
+      "id": "signatures",
+      "title": "MAX SIGNATURES",
+      "columns": [
+        "HOT",
+        "ICED"
+      ],
+      "items": [
+        {
+          "name": "MAX DAILY SIGNATURE",
+          "desc": "Salted caramel, roasted hazelnut & double shot",
+          "prices": [
+            "125",
+            "135"
+          ]
+        },
+        {
+          "name": "PISTACHIO VELVET LATTE",
+          "desc": "House pistachio cream & double espresso",
+          "prices": [
+            "135",
+            "145"
+          ]
+        },
+        {
+          "name": "SPANISH LATTE",
+          "desc": "Sweetened condensed milk & double espresso",
+          "prices": [
+            "115",
+            "125"
+          ]
+        },
+        {
+          "name": "WHITE MOCHA BREW",
+          "desc": "Belgian white chocolate & rich espresso",
+          "prices": [
+            "115",
+            "125"
+          ]
+        },
+        {
+          "name": "ESPRESSO TONIC / CITRUS",
+          "desc": "Sparkling botanical tonic, orange zest & shot",
+          "prices": [
+            "—",
+            "125"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "espresso_bar",
+      "title": "ESPRESSO & MILK",
+      "columns": [
+        "HOT",
+        "ICED"
+      ],
+      "items": [
+        {
+          "name": "ESPRESSO / DOPPIO",
+          "desc": "Rich signature blend with velvety crema",
+          "prices": [
+            "65",
+            "—"
+          ]
+        },
+        {
+          "name": "AMERICANO",
+          "desc": "Double shot espresso over hot water or ice",
+          "prices": [
+            "75",
+            "85"
+          ]
+        },
+        {
+          "name": "FLAT WHITE",
+          "desc": "Double ristretto with thin micro-foam",
+          "prices": [
+            "95",
+            "—"
+          ]
+        },
+        {
+          "name": "CAPPUCCINO",
+          "desc": "Bold espresso, steamed milk & airy foam",
+          "prices": [
+            "95",
+            "105"
+          ]
+        },
+        {
+          "name": "CAFFE LATTE",
+          "desc": "Smooth daily dose with creamy steamed milk",
+          "prices": [
+            "95",
+            "105"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "brew_frappe",
+      "title": "MANUAL BREW & FRAPPE",
+      "columns": [
+        "REG",
+        "LRG"
+      ],
+      "items": [
+        {
+          "name": "V60 POUR OVER",
+          "desc": "Hand-poured single-origin specialty filter",
+          "prices": [
+            "120",
+            "130"
+          ]
+        },
+        {
+          "name": "COLD BREW (18H)",
+          "desc": "Slow-steeped small batch specialty roast",
+          "prices": [
+            "—",
+            "115"
+          ]
+        },
+        {
+          "name": "CARAMEL ESPRESSO FRAPPE",
+          "desc": "Blended ice, double espresso & buttery caramel",
+          "prices": [
+            "115",
+            "130"
+          ]
+        },
+        {
+          "name": "LOTUS BISCOFF FRAPPE",
+          "desc": "Creamy caramelized biscuit blend & espresso",
+          "prices": [
+            "125",
+            "140"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bakery_sweets",
+      "title": "BAKERY & SWEETS",
+      "columns": [
+        "PRICE"
+      ],
+      "items": [
+        {
+          "name": "FRENCH BUTTER CROISSANT",
+          "desc": "Flaky golden-baked laminated pastry",
+          "prices": [
+            "85"
+          ]
+        },
+        {
+          "name": "PISTACHIO CROISSANT",
+          "desc": "Twice-baked with house frangipane cream",
+          "prices": [
+            "115"
+          ]
+        },
+        {
+          "name": "SAN SEBASTIAN CHEESECAKE",
+          "desc": "Creamy Basque cheesecake + warm chocolate",
+          "prices": [
+            "140"
+          ]
+        },
+        {
+          "name": "ESPRESSO FUDGE BROWNIE",
+          "desc": "Rich dark chocolate chunk with sea salt",
+          "prices": [
+            "95"
+          ]
+        },
+        {
+          "name": "CINNAMON BRIOCHE ROLL",
+          "desc": "Warm swirled brioche with cream cheese glaze",
+          "prices": [
+            "105"
+          ]
+        }
+      ]
+    }
+  ],
+  "custom_buttons": [
+    {
+      "id": "btn_1794604788762",
+      "title": "LOYALLTY CARD",
+      "subtitle": "BE ONE OF OUR SPECIALS",
+      "url": "Digital loyalty stamp cards for MAX DAILY specialty coffee & bakery customers, offering visit stamps, rewards, and store updates."
+    }
+  ]
+}
