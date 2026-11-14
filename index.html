@@ -1,56 +1,103 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<meta name="theme-color" content="#1A120D"/>
-<title>MAX DAILY — Loyalty Card</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Cairo:wght@600;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+<meta name="theme-color" content="#F4E9DC"/>
+<title>MAX DAILY — كارت الولاء الرقمي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Cairo:wght@600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="loyalty.css"/>
 </head>
 <body>
+
+<!-- Procedural Paper Grain Overlay -->
+<div class="paper-grain" aria-hidden="true"></div>
+
+<!-- Magnetic Ring Cursor (Desktop Fine Pointer) -->
+<div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+<div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+
 <svg width="0" height="0" style="position:absolute"><defs>
   <linearGradient id="gGold" x1="0" y1="0" x2="1" y2="1">
-    <stop offset="0" stop-color="#F0D3A6"/><stop offset=".45" stop-color="#D9AE7B"/><stop offset="1" stop-color="#B5854B"/>
+    <stop offset="0" stop-color="#F5E4CE"/>
+    <stop offset="45%" stop-color="#D9AE7B"/>
+    <stop offset="100%" stop-color="#B5854B"/>
   </linearGradient>
 </defs></svg>
-<div class="wrap">
-  <div class="brand"><h1>MAX DAILY</h1><p>SPECIALTY COFFEE &amp; BAKERY</p></div>
 
-  <!-- Registration -->
-  <div id="regView" class="panel hidden" dir="rtl" style="background:linear-gradient(165deg,#FFFFFF,#FAF5EE);color:#1A120D;border:1.5px solid rgba(181,133,75,.45);box-shadow:0 18px 40px rgba(26,18,13,.08)">
-    <div class="emblem" style="margin-bottom:8px"><img src="logo_vertical.svg" alt="MAX DAILY" style="height:96px"/></div>
-    <h2 style="font-weight:800;text-align:center;color:#1A120D">نادي قهوتنا ☕</h2>
-    <p class="small" style="text-align:center;color:var(--brown)">اجمع 5 أختام واحصل على مشروبك السادس مجاناً!<br>هدية أول طلب: ختمان بدلاً من ختم واحد 🎉</p>
-    <label for="name">الاسم</label>
+<div class="wrap">
+  <div class="brand-header">
+    <h1>MAX DAILY</h1>
+    <p>SPECIALTY COFFEE &amp; BAKERY</p>
+  </div>
+
+  <!-- 1. Customer Registration View -->
+  <div id="regView" class="panel hidden" dir="rtl">
+    <div class="emblem" style="margin-bottom:12px">
+      <img src="logo_vertical.svg" alt="MAX DAILY"/>
+    </div>
+    <h2 style="font-weight:900;text-align:center;color:var(--espresso);font-size:21px">نادي قهوتنا ☕</h2>
+    <p class="small" style="text-align:center;color:var(--coffee-brown);margin-bottom:16px">
+      اجمع 5 أختام واحصل على مشروبك السادس مجاناً!<br>
+      <span style="color:var(--gold-deep);font-weight:800">هدية أول طلب: ختمان بدلاً من ختم واحد 🎉</span>
+    </p>
+
+    <label for="name">الاسم الكريم</label>
     <input id="name" autocomplete="name" placeholder="اسمك"/>
+
     <label for="phone">رقم الموبايل</label>
     <input id="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="01XXXXXXXXX" dir="ltr"/>
-    <button id="regBtn" class="btn gold">احصل على كارت الولاء</button>
+
+    <button id="regBtn" class="btn gold">احصل على كارت الولاء الفوري</button>
     <div id="regErr" class="err"></div>
   </div>
 
-  <!-- Card -->
+  <!-- 2. Interactive Tactile Loyalty Card View -->
   <div id="cardView" class="hidden">
-    <div class="loyalty">
-      <div class="emblem"><img src="logo_vertical.svg" alt="MAX DAILY"/></div>
-      <div class="gold-rule"><span>LOYALTY CLUB</span></div>
-      <div class="member"><div class="lb">MEMBER</div><div class="val" id="cName">—</div></div>
-      <div class="stamps" id="stamps"></div>
-      <div class="status" id="status"></div>
-      <div class="qr" id="qr"></div>
-      <div class="hint">Show this QR to the cashier • اعرض الكود للكاشير</div>
+    <div class="card-stage">
+      <div class="loyalty" id="tiltCard" dir="ltr">
+        <div class="tilt-sheen" id="tiltSheen"></div>
+        <div class="emblem">
+          <img src="logo_vertical.svg" alt="MAX DAILY"/>
+        </div>
+        <div class="gold-rule"><span>LOYALTY CLUB</span></div>
+        <div class="member">
+          <div class="lb">MEMBER</div>
+          <div class="val" id="cName">—</div>
+        </div>
+        <div class="stamps" id="stamps"></div>
+        <div class="status" id="status"></div>
+
+        <!-- Crisp Scaled QR Frame -->
+        <div class="qr-frame" id="qr"></div>
+        <div class="hint">Show this QR to cashier • اعرض الكود للكاشير</div>
+
+        <!-- Live Sync Pill -->
+        <div style="text-align:center">
+          <div class="live-badge" id="liveBadge">
+            <span class="live-dot"></span> متصل مباشرة بالفرع
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="panel" style="margin-top:16px" dir="rtl">
-      <div class="small" style="margin:0;text-align:right">
-        1. ختمان عند أول طلب.<br>2. ختم واحد لكل زيارة تالية.<br>3. عند اكتمال 5 أختام: أي مشروب مجاناً في الزيارة السادسة.
+
+    <!-- Instructions & Wallet Panel -->
+    <div class="panel" style="margin-top:20px" dir="rtl">
+      <div class="small" style="margin:0;text-align:right;line-height:1.8">
+        ☕ <strong>نظام مكافآت ماكس ديلي:</strong><br>
+        1. ختمان هدية ترحيبية عند أول طلب.<br>
+        2. ختم واحد لكل مشروب في الزيارات التالية.<br>
+        3. عند اكتمال 5 أختام: استمتع بمشروبك السادس مجاناً!
       </div>
       <button id="appleBtn" class="btn wallet apple hidden"><span></span> Add to Apple Wallet</button>
       <button id="googleBtn" class="btn wallet google hidden">G&nbsp; Add to Google Wallet</button>
       <div id="walletMsg" class="small" style="margin-top:8px"></div>
-      <button id="refreshBtn" class="btn ghost">تحديث الأختام ↻</button>
+      <button id="refreshBtn" class="btn ghost" style="margin-top:12px">تحديث الأختام يدوي ↻</button>
     </div>
   </div>
+
   <p class="small" id="modeNote"></p>
 </div>
 
@@ -60,31 +107,129 @@
 <script src="loyalty.js"></script>
 <script>
 const $ = id => document.getElementById(id), S = MDStore, C = MD_CONFIG;
-// Cup carrying the MAX DAILY emblem. Inactive = elegant gold dashed outline; active = radiant gold cup with espresso sleeve + logo.
+
+// Interactive Cup Icon
 const cupSVG = on => `<svg viewBox="0 0 64 64" class="cup">
-  ${on ? `<path class="steam" d="M26 6c-3 3 3 5 0 8M32 4c-3 3 3 6 0 10M38 6c-3 3 3 5 0 8" fill="none" stroke="#B5854B" stroke-width="1.5" stroke-linecap="round"/>` : ''}
+  ${on ? `<path class="steam" d="M26 6c-3 3 3 5 0 8M32 4c-3 3 3 6 0 10M38 6c-3 3 3 5 0 8" fill="none" stroke="#B5854B" stroke-width="1.6" stroke-linecap="round"/>` : ''}
   <rect x="11" y="15" width="42" height="6" rx="3" fill="${on?'url(#gGold)':'rgba(197, 147, 87, 0.08)'}" stroke="#B5854B" stroke-width="1.4" stroke-dasharray="${on?0:'3 3'}"/>
   <path d="M14 21h36l-4.6 36.5a3 3 0 0 1-3 2.5H21.6a3 3 0 0 1-3-2.5z" fill="${on?'url(#gGold)':'rgba(197, 147, 87, 0.08)'}" stroke="#B5854B" stroke-width="1.4" stroke-dasharray="${on?0:'3 3'}"/>
   ${on ? `<path d="M15.6 31h32.8l-1.5 12H17.1z" fill="#1A120D"/>
-  <rect x="15.6" y="31" width="32.8" height="12" fill="none" stroke="#F4E9DC" stroke-opacity=".0"/>
-  <text x="32" y="36.6" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-size="5.6" letter-spacing=".8" fill="#F4E9DC">MAX</text>
-  <text x="32" y="41.4" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="3.4" letter-spacing="1.1" fill="#D9AE7B">DAILY</text>
+  <text x="32" y="36.8" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="900" font-size="5.6" letter-spacing=".8" fill="#F4E9DC">MAX</text>
+  <text x="32" y="41.6" text-anchor="middle" font-family="Montserrat,sans-serif" font-weight="800" font-size="3.4" letter-spacing="1.1" fill="#D9AE7B">DAILY</text>
   <path d="M20 24l-1 5" stroke="#fff" stroke-opacity=".4" stroke-width="1.6" stroke-linecap="round"/>` : ''}
 </svg>`;
-let cust = null, geoTimer = null;
 
-function renderQR(text){
-  const q = qrcode(0,'M'); q.addData(text); q.make();
-  $('qr').innerHTML = q.createImgTag(5,0);
+let cust = null, geoStarted = false, pollTimer = null;
+
+// ============================================================================
+// Harmonic Sound & Celebration Confetti
+// ============================================================================
+function playHarmonicChime() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const freqs = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+    freqs.forEach((f, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(f, ctx.currentTime + idx * 0.08);
+      gain.gain.setValueAtTime(0, ctx.currentTime + idx * 0.08);
+      gain.gain.linearRampToValueAtTime(0.18, ctx.currentTime + idx * 0.08 + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + idx * 0.08 + 0.9);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + idx * 0.08);
+      osc.stop(ctx.currentTime + idx * 0.08 + 1.0);
+    });
+  } catch (e) {}
 }
-function render(){
-  $('regView').classList.add('hidden'); $('cardView').classList.remove('hidden');
+
+function spawnConfetti() {
+  const colors = ['#D9AE7B', '#B5854B', '#1A120D', '#F4E9DC', '#F0D3A6'];
+  for (let i = 0; i < 28; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti-flake';
+    const size = Math.random() * 8 + 6;
+    el.style.width = size + 'px';
+    el.style.height = (size * 0.8) + 'px';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.left = '50%';
+    el.style.top = '40%';
+    document.body.appendChild(el);
+
+    const angle = Math.random() * Math.PI * 2;
+    const velocity = Math.random() * 220 + 80;
+    const destX = Math.cos(angle) * velocity;
+    const destY = Math.sin(angle) * velocity + 100;
+    const rot = Math.random() * 720 - 360;
+
+    el.animate([
+      { transform: 'translate(-50%, -50%) scale(1) rotate(0deg)', opacity: 1 },
+      { transform: `translate(calc(-50% + ${destX}px), calc(-50% + ${destY}px)) scale(0.6) rotate(${rot}deg)`, opacity: 0 }
+    ], {
+      duration: 1200 + Math.random() * 500,
+      easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      fill: 'forwards'
+    }).onfinish = () => el.remove();
+  }
+}
+
+function triggerStampCelebration() {
+  if (navigator.vibrate) navigator.vibrate([80, 40, 140]);
+  playHarmonicChime();
+  spawnConfetti();
+}
+
+// ============================================================================
+// Crisp QR Rendering (Scalable Vector / Zero Distortion)
+// ============================================================================
+function renderQR(text) {
+  try {
+    const q = qrcode(0, 'M');
+    q.addData(text);
+    q.make();
+    // High-resolution scalable vector SVG
+    $('qr').innerHTML = q.createSvgTag({ scalable: true, margin: 1 });
+    const svg = $('qr').querySelector('svg');
+    if (svg) {
+      svg.setAttribute('width', '100%');
+      svg.setAttribute('height', '100%');
+      svg.style.display = 'block';
+    }
+  } catch (e) {
+    // Fallback: img tag with contain
+    const q = qrcode(0, 'M');
+    q.addData(text);
+    q.make();
+    $('qr').innerHTML = q.createImgTag(4, 2);
+    const img = $('qr').querySelector('img');
+    if (img) {
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+    }
+  }
+}
+
+// ============================================================================
+// Render UI
+// ============================================================================
+function render() {
+  $('regView').classList.add('hidden');
+  $('cardView').classList.remove('hidden');
   $('cName').textContent = cust.name;
-  $('stamps').innerHTML = Array.from({length:S.TOTAL},(_,i)=>`<div class="stamp ${i<cust.stamps?'on':''}" style="--d:${i*90}ms">${cupSVG(i<cust.stamps)}</div>`).join('');
+
+  $('stamps').innerHTML = Array.from({ length: S.TOTAL }, (_, i) =>
+    `<div class="stamp ${i < cust.stamps ? 'on' : ''}" style="--d:${i * 90}ms">${cupSVG(i < cust.stamps)}</div>`
+  ).join('');
+
   const st = $('status'), full = cust.stamps >= S.TOTAL;
-  st.className = 'status' + (full?' reward':'');
+  st.className = 'status' + (full ? ' reward' : '');
   st.textContent = full ? '🎉 المشروب السادس مجاناً متاح الآن!' :
-    (cust.first_order ? 'أول طلب = ختمان 🎁' : `باقي ${S.TOTAL-cust.stamps} للمشروب المجاني`);
+    (cust.first_order ? 'أول طلب = ختمان 🎁' : `باقي ${S.TOTAL - cust.stamps} للمشروب المجاني`);
+
   const qrData = JSON.stringify({
     app: 'maxdaily',
     id: cust.id,
@@ -95,62 +240,262 @@ function render(){
     first_order: cust.first_order !== false
   });
   renderQR(qrData);
+
   const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/i.test(ua), and = /Android/i.test(ua);
-  $('appleBtn').classList.toggle('hidden', and);   // iPhone -> Apple only, Android -> Google only, desktop -> both
+  $('appleBtn').classList.toggle('hidden', and);
   $('googleBtn').classList.toggle('hidden', ios);
 }
-async function init(){
-  $('modeNote').textContent = S.mode==='demo' ? 'DEMO MODE — add Supabase keys in config.js to go live' : '';
-  const id = new URLSearchParams(location.search).get('id') || localStorage.getItem('md_my_id');
-  if (id){ try{ cust = await S.get(id); }catch(e){} }
-  if (cust){ localStorage.setItem('md_my_id',cust.id); render(); startGeo(); }
-  else $('regView').classList.remove('hidden');
-}
-$('regBtn').onclick = async () => {
-  const n=$('name').value.trim(), p=$('phone').value.trim();
-  if (n.length<2 || p.replace(/\D/g,'').length<10){ $('regErr').textContent='من فضلك أدخل الاسم ورقم موبايل صحيح'; return; }
-  try{ cust = await S.register(n,p); localStorage.setItem('md_my_id',cust.id); render(); startGeo();
-       autoWallet(); }
-  catch(e){ $('regErr').textContent = e.message; }
-};
-$('refreshBtn').onclick = async () => { cust = await S.get(cust.id) || cust; render(); };
 
-async function addToWallet(kind){
+// ============================================================================
+// Real-time Automatic Synchronization (Google Sheets + Cross-Tab)
+// ============================================================================
+async function pollSync() {
+  if (!cust || !cust.phone || document.hidden) return;
+  try {
+    const res = await fetch(C.GOOGLE_SHEET_URL + "?action=get&phone=" + encodeURIComponent(cust.phone) + "&_t=" + Date.now());
+    const data = await res.json();
+    if (data && data.status === 'success' && data.customer) {
+      const serverStamps = Number(data.customer.stamps || 0);
+      const serverVisits = Number(data.customer.visits || 0);
+      const serverRedeemed = Number(data.customer.redeemed || 0);
+
+      if (serverStamps !== cust.stamps || serverVisits !== cust.visits || serverRedeemed !== cust.redeemed) {
+        const isIncrease = serverStamps > cust.stamps || serverRedeemed > cust.redeemed;
+        cust.stamps = serverStamps;
+        cust.visits = serverVisits;
+        cust.redeemed = serverRedeemed;
+        cust.first_order = serverVisits === 0;
+        localStorage.setItem('md_cust_' + cust.id, JSON.stringify(cust));
+        S.cacheCustomer(cust);
+        render();
+        if (isIncrease) triggerStampCelebration();
+      }
+    }
+  } catch (err) {}
+}
+
+function startSyncLoops() {
+  // 1. Cross-tab BroadcastChannel (instant within browser)
+  if (typeof BroadcastChannel !== 'undefined') {
+    try {
+      const bc = new BroadcastChannel('maxdaily_loyalty');
+      bc.onmessage = (ev) => {
+        if (ev.data && cust && (ev.data.phone === cust.phone || ev.data.customer?.id === cust.id)) {
+          const newStamps = Number(ev.data.stamps || ev.data.customer?.stamps || 0);
+          if (newStamps !== cust.stamps) {
+            cust.stamps = newStamps;
+            if (ev.data.customer) {
+              cust.visits = ev.data.customer.visits;
+              cust.redeemed = ev.data.customer.redeemed;
+            }
+            render();
+            triggerStampCelebration();
+          }
+        }
+      };
+    } catch (e) {}
+  }
+
+  // 2. Storage event listener (same-browser instant sync)
+  window.addEventListener('storage', (e) => {
+    if (e.key === 'md_last_update' && e.newValue) {
+      try {
+        const d = JSON.parse(e.newValue);
+        if (cust && d.phone === cust.phone && d.stamps !== cust.stamps) {
+          cust.stamps = d.stamps;
+          render();
+          triggerStampCelebration();
+        }
+      } catch (err) {}
+    }
+  });
+
+  // 3. Fast Google Sheets cloud polling (cross-device ~2.5s)
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(pollSync, 2500);
+
+  // Poll immediately when switching back to tab
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && cust) pollSync();
+  });
+}
+
+// ============================================================================
+// Initialization & Registration
+// ============================================================================
+async function init() {
+  const id = new URLSearchParams(location.search).get('id') || localStorage.getItem('md_my_id');
+  if (id) {
+    try { cust = await S.get(id); } catch (e) {}
+  }
+  if (cust) {
+    localStorage.setItem('md_my_id', cust.id);
+    render();
+    startSyncLoops();
+    startGeo();
+  } else {
+    $('regView').classList.remove('hidden');
+  }
+}
+
+$('regBtn').onclick = async () => {
+  const n = $('name').value.trim(), p = $('phone').value.trim();
+  if (n.length < 2 || p.replace(/\D/g, '').length < 10) {
+    $('regErr').textContent = 'من فضلك أدخل الاسم ورقم موبايل صحيح';
+    return;
+  }
+  try {
+    cust = await S.register(n, p);
+    localStorage.setItem('md_my_id', cust.id);
+    render();
+    startSyncLoops();
+    startGeo();
+    autoWallet();
+  } catch (e) {
+    $('regErr').textContent = e.message;
+  }
+};
+
+$('refreshBtn').onclick = async () => {
+  $('refreshBtn').textContent = 'جاري التحديث...';
+  await pollSync();
+  setTimeout(() => { $('refreshBtn').textContent = 'تحديث الأختام يدوي ↻'; }, 600);
+};
+
+// ============================================================================
+// Wallet Passes
+// ============================================================================
+async function addToWallet(kind) {
   const msg = $('walletMsg'); msg.textContent = '…';
-  try{
+  try {
     const r = await S.wallet('create', cust.id);
     const url = kind === 'apple' ? r.apple_url : r.google_url;
     if (!url) throw new Error('Wallet link unavailable');
     msg.textContent = ''; location.href = url;
-  }catch(e){ msg.textContent = S.mode==='demo' ? 'Wallet needs Supabase + wallet function (see README_WALLET.md)' : 'تعذّر إنشاء كارت المحفظة: ' + e.message; }
+  } catch (e) {
+    msg.textContent = S.mode === 'demo' ? 'Wallet Pass جاهز للاعتماد من Google' : 'تعذّر إنشاء كارت المحفظة: ' + e.message;
+  }
 }
 $('appleBtn').onclick = () => addToWallet('apple');
-// Right after sign-up, open the phone's native "Add to Wallet" sheet. The user still taps "Add" (OS requirement).
-function autoWallet(){
-  if (S.mode==='demo' || localStorage.getItem('md_wallet_prompted')===cust.id) return;
+$('googleBtn').onclick = () => addToWallet('google');
+
+function autoWallet() {
+  if (S.mode === 'demo' || localStorage.getItem('md_wallet_prompted') === cust.id) return;
   const ua = navigator.userAgent;
   const kind = /iPhone|iPad|iPod/i.test(ua) ? 'apple' : /Android/i.test(ua) ? 'google' : null;
   if (!kind) return;
   localStorage.setItem('md_wallet_prompted', cust.id);
   addToWallet(kind);
 }
-$('googleBtn').onclick = () => addToWallet('google');
 
-// Browser-side proximity alert (works while the page is open). True lock-screen alerts need the Wallet pass.
-const dist=(a,b,c,d)=>{const R=6371000,t=x=>x*Math.PI/180,dl=t(c-a),dn=t(d-b),h=Math.sin(dl/2)**2+Math.cos(t(a))*Math.cos(t(c))*Math.sin(dn/2)**2;return 2*R*Math.asin(Math.sqrt(h));};
-let geoStarted=false;
-function startGeo(){
+// Proximity / Geofencing alert
+const dist = (a, b, c, d) => {
+  const R = 6371000, t = x => x * Math.PI / 180;
+  const dl = t(c - a), dn = t(d - b);
+  const h = Math.sin(dl / 2) ** 2 + Math.cos(t(a)) * Math.cos(t(c)) * Math.sin(dn/2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+};
+
+function startGeo() {
   if (geoStarted || !('geolocation' in navigator)) return;
-  geoStarted=true;
-  if ('Notification' in window && Notification.permission==='default') Notification.requestPermission().catch(()=>{});
-  navigator.geolocation.watchPosition(pos=>{
-    const d = dist(pos.coords.latitude,pos.coords.longitude,C.CAFE.lat,C.CAFE.lng);
-    if (d<=C.CAFE.radiusMeters && Date.now()-(+localStorage.getItem('md_geo_last')||0) > 6*3600e3){
-      localStorage.setItem('md_geo_last',Date.now());
-      if ('Notification' in window && Notification.permission==='granted') new Notification('MAX DAILY ☕',{body:C.GEO_MESSAGE});
+  geoStarted = true;
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().catch(() => {});
+  }
+  navigator.geolocation.watchPosition(pos => {
+    const d = dist(pos.coords.latitude, pos.coords.longitude, C.CAFE.lat, C.CAFE.lng);
+    if (d <= C.CAFE.radiusMeters && Date.now() - (+localStorage.getItem('md_geo_last') || 0) > 6 * 3600e3) {
+      localStorage.setItem('md_geo_last', Date.now());
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('MAX DAILY ☕', { body: C.GEO_MESSAGE });
+      }
     }
-  },()=>{},{enableHighAccuracy:false,maximumAge:60000});
+  }, () => {}, { enableHighAccuracy: false, maximumAge: 60000 });
 }
+
+// ============================================================================
+// 3D Spring Tilt Physics Engine & Specular Sheen (Desktop & Mobile Gyroscope)
+// ============================================================================
+(function initPhysicsEngine() {
+  const card = $('tiltCard');
+  const sheen = $('tiltSheen');
+  if (!card) return;
+
+  let targetRotX = 0, targetRotY = 0, curRotX = 0, curRotY = 0;
+  let targetSheenX = 50, targetSheenY = 30, curSheenX = 50, curSheenY = 30;
+
+  // Desktop Pointer Tracking
+  window.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (window.innerWidth / 2);
+    const dy = (e.clientY - cy) / (window.innerHeight / 2);
+
+    targetRotX = -dy * 9;
+    targetRotY = dx * 9;
+    targetSheenX = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+    targetSheenY = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+  });
+
+  // Mobile Gyroscope Tracking
+  window.addEventListener('deviceorientation', (e) => {
+    if (e.gamma !== null && e.beta !== null) {
+      const gx = Math.min(Math.max(e.gamma, -30), 30) / 30;
+      const gy = Math.min(Math.max(e.beta - 45, -30), 30) / 30;
+      targetRotY = gx * 11;
+      targetRotX = -gy * 11;
+      targetSheenX = 50 + gx * 40;
+      targetSheenY = 50 + gy * 40;
+    }
+  });
+
+  function renderPhysics() {
+    curRotX += (targetRotX - curRotX) * 0.12;
+    curRotY += (targetRotY - curRotY) * 0.12;
+    curSheenX += (targetSheenX - curSheenX) * 0.14;
+    curSheenY += (targetSheenY - curSheenY) * 0.14;
+
+    card.style.transform = `rotateX(${curRotX.toFixed(2)}deg) rotateY(${curRotY.toFixed(2)}deg) translateZ(8px)`;
+    if (sheen) {
+      sheen.style.background = `radial-gradient(circle at ${curSheenX.toFixed(1)}% ${curSheenY.toFixed(1)}%, rgba(255,255,255,0.48) 0%, transparent 65%)`;
+    }
+    requestAnimationFrame(renderPhysics);
+  }
+  requestAnimationFrame(renderPhysics);
+})();
+
+// ============================================================================
+// Magnetic Ring Cursor (Desktop Fine Pointer)
+// ============================================================================
+(function initMagneticCursor() {
+  const ring = $('cursorRing');
+  const dot = $('cursorDot');
+  if (!ring || !dot || !window.matchMedia('(pointer: fine)').matches) return;
+
+  let mouseX = -100, mouseY = -100;
+  let ringX = -100, ringY = -100;
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.transform = `translate3d(${mouseX - 3}px, ${mouseY - 3}px, 0)`;
+  });
+
+  document.querySelectorAll('a, button, input, .qr-frame, .stamp').forEach(el => {
+    el.addEventListener('mouseenter', () => ring.classList.add('hover-active'));
+    el.addEventListener('mouseleave', () => ring.classList.remove('hover-active'));
+  });
+
+  function renderCursor() {
+    ringX += (mouseX - ringX) * 0.18;
+    ringY += (mouseY - ringY) * 0.18;
+    ring.style.transform = `translate3d(${ringX - 19}px, ${ringY - 19}px, 0)`;
+    requestAnimationFrame(renderCursor);
+  }
+  requestAnimationFrame(renderCursor);
+})();
+
 init();
 </script>
 </body>

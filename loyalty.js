@@ -11,6 +11,17 @@
   const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, c => { const r = Math.random() * 16 | 0; return (c === "x" ? r : (r & 3 | 8)).toString(16); }));
   const normPhone = (p) => String(p).replace(/[^\d+]/g, "");
 
+  const broadcast = (type, cust) => {
+    if (!cust) return;
+    try {
+      if (typeof BroadcastChannel !== "undefined") {
+        const bc = new BroadcastChannel("maxdaily_loyalty");
+        bc.postMessage({ type, customer: cust, phone: cust.phone, stamps: cust.stamps, visits: cust.visits });
+      }
+      localStorage.setItem("md_last_update", JSON.stringify({ t: Date.now(), phone: cust.phone, stamps: cust.stamps }));
+    } catch (e) {}
+  };
+
   // Realtime Sync to Google Sheet (deduplicated by phone, auto-sent to email)
   const syncSheet = (cust) => {
     if (!C.GOOGLE_SHEET_URL || !cust || !cust.phone) return;
@@ -42,17 +53,20 @@
         const { data, error } = await sb.rpc("md_register", { p_name: name, p_phone: phone });
         if (error) throw error;
         syncSheet(data);
+        broadcast("registered", data);
         return data;
       }
       const db = load();
       const existing = Object.values(db).find(c => c.phone === phone);
       if (existing) {
         syncSheet(existing);
+        broadcast("registered", existing);
         return existing;
       }
       const c = { id: uuid(), name, phone, stamps: 0, visits: 0, redeemed: 0, first_order: true, created_at: Date.now() };
       db[c.id] = c; save(db);
       syncSheet(c);
+      broadcast("registered", c);
       return c;
     },
 
@@ -108,7 +122,7 @@
       return null;
     },
 
-    // Wallet passes (Apple via PassSlot, Google via Wallet API) — handled by the Supabase Edge Function "wallet".
+    // Wallet passes (Apple via PassSlot, Google via Wallet API)
     async wallet(action, id) {
       if (!useSB) throw new Error("demo mode");
       const res = await fetch(C.SUPABASE_URL + "/functions/v1/wallet", {
@@ -127,6 +141,7 @@
         const { data, error } = await sb.rpc("md_apply", { p_id: id, p_action: action });
         if (error) throw error;
         syncSheet(data);
+        broadcast("stamp_update", data);
         return data;
       }
       const db = load();
@@ -143,6 +158,7 @@
       }
       db[id] = c; save(db);
       syncSheet(c);
+      broadcast("stamp_update", c);
       return c;
     }
   };
