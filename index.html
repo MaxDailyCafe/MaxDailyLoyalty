@@ -85,7 +85,16 @@ function render(){
   st.className = 'status' + (full?' reward':'');
   st.textContent = full ? '🎉 المشروب السادس مجاناً متاح الآن!' :
     (cust.first_order ? 'أول طلب = ختمان 🎁' : `باقي ${S.TOTAL-cust.stamps} للمشروب المجاني`);
-  renderQR(cust.id);
+  const qrData = JSON.stringify({
+    app: 'maxdaily',
+    id: cust.id,
+    phone: cust.phone,
+    name: cust.name,
+    stamps: cust.stamps,
+    visits: cust.visits || 0,
+    first_order: cust.first_order !== false
+  });
+  renderQR(qrData);
   const ua = navigator.userAgent, ios = /iPhone|iPad|iPod/i.test(ua), and = /Android/i.test(ua);
   $('appleBtn').classList.toggle('hidden', and);   // iPhone -> Apple only, Android -> Google only, desktop -> both
   $('googleBtn').classList.toggle('hidden', ios);

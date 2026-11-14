@@ -56,13 +56,22 @@
       return c;
     },
 
+    cacheCustomer(c) {
+      if (!c || !c.id) return;
+      const db = load();
+      db[c.id] = c;
+      if (c.phone) db[c.phone] = c;
+      save(db);
+    },
+
     async get(id) {
       if (useSB) {
         const { data, error } = await sb.rpc("md_get", { p_id: id });
         if (error) throw error;
         return data;
       }
-      return load()[id] || null;
+      const db = load();
+      return db[id] || Object.values(db).find(c => c.phone === id) || null;
     },
 
     async findByPhone(phone) {
@@ -72,7 +81,31 @@
         if (error) throw error;
         return data;
       }
-      return Object.values(load()).find(c => c.phone === phone) || null;
+      const local = Object.values(load()).find(c => c.phone === phone);
+      if (local) return local;
+
+      // Fallback: Query Google Sheet
+      if (C.GOOGLE_SHEET_URL) {
+        try {
+          const res = await fetch(C.GOOGLE_SHEET_URL + "?action=get&phone=" + encodeURIComponent(phone));
+          const j = await res.json();
+          if (j.status === "success" && j.customer) {
+            const c = {
+              id: j.customer.phone,
+              name: j.customer.name,
+              phone: j.customer.phone,
+              stamps: Number(j.customer.stamps || 0),
+              visits: Number(j.customer.visits || 0),
+              redeemed: Number(j.customer.redeemed || 0),
+              first_order: j.customer.first_order !== false,
+              created_at: Date.now()
+            };
+            this.cacheCustomer(c);
+            return c;
+          }
+        } catch(e) {}
+      }
+      return null;
     },
 
     // Wallet passes (Apple via PassSlot, Google via Wallet API) — handled by the Supabase Edge Function "wallet".
@@ -96,7 +129,8 @@
         syncSheet(data);
         return data;
       }
-      const db = load(); const c = db[id];
+      const db = load();
+      let c = db[id] || Object.values(db).find(x => x.phone === id);
       if (!c) throw new Error("Customer not found");
       if (action === "REDEEM") {
         if (c.stamps < TOTAL) throw new Error("Card is not full yet");

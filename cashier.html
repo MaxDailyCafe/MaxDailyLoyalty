@@ -12,9 +12,18 @@
   <div class="brand"><h1>MAX DAILY</h1><p>CASHIER • STAMP STATION</p></div>
 
   <div id="pinView" class="panel">
-    <label for="pin">PIN</label>
-    <input id="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"/>
-    <button id="pinBtn" class="btn">UNLOCK</button>
+    <label for="pin">PIN CODE</label>
+    <div style="position:relative">
+      <input id="pin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="8" autocomplete="off" placeholder="Enter PIN" style="font-size:22px;letter-spacing:6px;text-align:center;padding-right:40px"/>
+      <button id="togglePin" type="button" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:16px;cursor:pointer">👁</button>
+    </div>
+    <div class="pin-pad">
+      <div class="pin-key" data-k="1">1</div><div class="pin-key" data-k="2">2</div><div class="pin-key" data-k="3">3</div>
+      <div class="pin-key" data-k="4">4</div><div class="pin-key" data-k="5">5</div><div class="pin-key" data-k="6">6</div>
+      <div class="pin-key" data-k="7">7</div><div class="pin-key" data-k="8">8</div><div class="pin-key" data-k="9">9</div>
+      <div class="pin-key" data-k="C" style="color:#a3321f">C</div><div class="pin-key" data-k="0">0</div><div class="pin-key" data-k="DEL">⌫</div>
+    </div>
+    <button id="pinBtn" class="btn gold">UNLOCK</button>
     <div id="pinErr" class="err"></div>
   </div>
 
@@ -62,9 +71,24 @@ let cust = null, scanner = null;
 $('modeNote').textContent = S.mode==='demo' ? 'DEMO MODE — data stored in this browser only' : '';
 
 function unlock(){ $('pinView').classList.add('hidden'); $('mainView').classList.remove('hidden'); sessionStorage.setItem('md_unlocked','1'); }
-$('pinBtn').onclick = () => $('pin').value===C.CASHIER_PIN ? unlock() : ($('pinErr').textContent='Wrong PIN');
+$('pinBtn').onclick = () => $('pin').value.trim()===C.CASHIER_PIN ? unlock() : ($('pinErr').textContent='Wrong PIN');
 $('pin').onkeydown = e => e.key==='Enter' && $('pinBtn').click();
 if (sessionStorage.getItem('md_unlocked')) unlock();
+
+// PIN Pad Click Handlers
+document.querySelectorAll('.pin-key').forEach(btn => {
+  btn.onclick = () => {
+    const k = btn.getAttribute('data-k'), p = $('pin');
+    if (k === 'C') p.value = '';
+    else if (k === 'DEL') p.value = p.value.slice(0, -1);
+    else if (p.value.length < 8) p.value += k;
+    $('pinErr').textContent = '';
+  };
+});
+$('togglePin').onclick = () => {
+  const p = $('pin');
+  p.type = p.type === 'password' ? 'text' : 'password';
+};
 
 function show(){
   $('custView').classList.remove('hidden'); $('err').textContent='';
@@ -78,7 +102,37 @@ function show(){
   $('add1').disabled = full; $('redeem').disabled = !full;
   $('add1').classList.toggle('hidden', cust.first_order && cust.stamps===0);
 }
-async function load(id){ try{ cust=await S.get(id); if(!cust) throw new Error('Customer not found'); show(); }catch(e){ $('err').textContent=e.message; } }
+async function load(raw){
+  $('err').textContent = '';
+  try {
+    raw = (raw || '').trim();
+    // 1. Direct packet from QR Code
+    if (raw.startsWith('{') && raw.endsWith('}')) {
+      const p = JSON.parse(raw);
+      if (p.phone) {
+        cust = {
+          id: p.id || p.phone,
+          phone: p.phone,
+          name: p.name || 'Customer',
+          stamps: Number(p.stamps || 0),
+          visits: Number(p.visits || 0),
+          redeemed: Number(p.redeemed || 0),
+          first_order: p.first_order !== false
+        };
+        S.cacheCustomer(cust);
+        show();
+        return;
+      }
+    }
+    // 2. Local database / cache
+    cust = await S.get(raw);
+    if (!cust) cust = await S.findByPhone(raw);
+    if (!cust) throw new Error('Customer not found • تعذر العثور على العميل');
+    show();
+  } catch(e) {
+    $('err').textContent = e.message;
+  }
+}
 async function act(a){ try{ cust=await S.apply(cust.id,a); S.wallet('sync',cust.id).catch(()=>{}); show(); if(navigator.vibrate) navigator.vibrate(60);}catch(e){ $('err').textContent=e.message; } }
 $('add2').onclick=()=>act('ADD_2_FIRST'); $('add1').onclick=()=>act('ADD_1'); $('redeem').onclick=()=>{ if(confirm('Redeem free drink & reset card?')) act('REDEEM'); };
 $('lookupBtn').onclick=async()=>{ try{ cust=await S.findByPhone($('lookup').value); if(!cust) throw new Error('No customer with this number'); show(); }catch(e){ $('err').textContent=e.message; } };

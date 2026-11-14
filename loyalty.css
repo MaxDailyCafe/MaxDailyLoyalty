@@ -7,8 +7,11 @@ body{font-family:'Montserrat','Cairo',sans-serif;background:radial-gradient(circ
 .brand p{font-size:10px;letter-spacing:.3em;color:var(--gold-deep);font-weight:600;margin-top:4px}
 .panel{background:var(--soft);border:1px solid rgba(181,133,75,.32);border-radius:20px;padding:22px;box-shadow:0 16px 36px rgba(26,18,13,.12);margin-bottom:16px}
 label{display:block;font-size:11px;font-weight:700;letter-spacing:.14em;margin:12px 0 6px}
-input{width:100%;padding:14px;border-radius:12px;border:1px solid rgba(26,18,13,.15);background:#fff;font:inherit;font-size:16px}
-input:focus{outline:2px solid var(--gold)}
+input{width:100%;padding:14px;border-radius:12px;border:1.5px solid rgba(181,133,75,.4);background:#FFFFFF!important;color:#1A120D!important;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif!important;font-size:16px;-webkit-appearance:none}
+input:focus{outline:2px solid var(--gold);border-color:var(--gold-deep)}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.pin-key{padding:14px;background:#FFFFFF;border:1.5px solid rgba(181,133,75,.35);border-radius:12px;font-size:20px;font-weight:800;color:var(--espresso);cursor:pointer;text-align:center;transition:background .1s}
+.pin-key:active{background:var(--gold);color:#FFFFFF}
 .btn{display:block;width:100%;margin-top:14px;padding:15px;border:0;border-radius:14px;font:inherit;font-weight:800;letter-spacing:.08em;font-size:14px;cursor:pointer;background:var(--espresso);color:var(--cream);transition:transform .15s}
 .btn:active{transform:scale(.97)}
 .btn.gold{background:linear-gradient(135deg,var(--gold),var(--gold-deep));color:var(--espresso)}
